@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Filter, RefreshCw, Bell, ArrowUpRight, ArrowDownRight, Minus } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 interface SignalFeedProps {
   onSelectSignal?: (signal: TradingSignal) => void;
@@ -16,6 +17,7 @@ interface SignalFeedProps {
 const SignalFeed = ({ onSelectSignal, selectedSignal }: SignalFeedProps) => {
   const [activeFilter, setActiveFilter] = useState<SignalType | 'ALL'>('ALL');
   const [timeframeFilter, setTimeframeFilter] = useState<Timeframe | 'ALL'>('ALL');
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const filteredSignals = mockSignals.filter((signal) => {
     const matchesType = activeFilter === 'ALL' || signal.signal === activeFilter;
@@ -29,6 +31,16 @@ const SignalFeed = ({ onSelectSignal, selectedSignal }: SignalFeedProps) => {
     HOLD: mockSignals.filter((s) => s.signal === 'HOLD').length,
   };
 
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    setIsRefreshing(false);
+    toast.success('Signals refreshed', {
+      description: `${mockSignals.length} active signals loaded`,
+    });
+  };
+
   return (
     <Card className="flex h-full flex-col border-border bg-card">
       <div className="border-b border-border p-3">
@@ -40,8 +52,14 @@ const SignalFeed = ({ onSelectSignal, selectedSignal }: SignalFeedProps) => {
               {filteredSignals.length} Active
             </Badge>
           </div>
-          <Button variant="ghost" size="icon" className="h-7 w-7">
-            <RefreshCw className="h-3.5 w-3.5" />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7"
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+          >
+            <RefreshCw className={cn('h-3.5 w-3.5', isRefreshing && 'animate-spin')} />
           </Button>
         </div>
 

@@ -1,8 +1,25 @@
-import { Bell, Settings, User, Zap } from 'lucide-react';
+import { Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import NotificationPanel from './NotificationPanel';
+import SettingsDialog from './SettingsDialog';
+import UserMenu from './UserMenu';
 
-const Header = () => {
+export type PageType = 'dashboard' | 'signals' | 'backtest' | 'screener';
+
+interface HeaderProps {
+  currentPage: PageType;
+  onNavigate: (page: PageType) => void;
+}
+
+const Header = ({ currentPage, onNavigate }: HeaderProps) => {
+  const navItems: { label: string; page: PageType }[] = [
+    { label: 'Dashboard', page: 'dashboard' },
+    { label: 'Signals', page: 'signals' },
+    { label: 'Backtest', page: 'backtest' },
+    { label: 'Screener', page: 'screener' },
+  ];
+
   return (
     <header className="flex items-center justify-between border-b border-border bg-card/80 px-6 py-3 backdrop-blur-sm">
       <div className="flex items-center gap-3">
@@ -22,31 +39,23 @@ const Header = () => {
       </div>
 
       <nav className="hidden md:flex items-center gap-1">
-        {['Dashboard', 'Signals', 'Backtest', 'Screener'].map((item, index) => (
+        {navItems.map((item) => (
           <Button
-            key={item}
-            variant={index === 0 ? 'secondary' : 'ghost'}
+            key={item.page}
+            variant={currentPage === item.page ? 'secondary' : 'ghost'}
             size="sm"
             className="text-sm"
+            onClick={() => onNavigate(item.page)}
           >
-            {item}
+            {item.label}
           </Button>
         ))}
       </nav>
 
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="h-4 w-4" />
-          <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-bullish text-[10px] font-bold text-bullish-foreground">
-            3
-          </span>
-        </Button>
-        <Button variant="ghost" size="icon">
-          <Settings className="h-4 w-4" />
-        </Button>
-        <Button variant="ghost" size="icon" className="rounded-full">
-          <User className="h-4 w-4" />
-        </Button>
+        <NotificationPanel />
+        <SettingsDialog />
+        <UserMenu />
       </div>
     </header>
   );

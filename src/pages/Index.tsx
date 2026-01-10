@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import { TradingSignal } from '@/types/trading';
-import { mockSignals, nifty50Stocks } from '@/data/mockData';
-import Header from '@/components/Header';
+import { mockSignals } from '@/data/mockData';
+import Header, { PageType } from '@/components/Header';
 import MarketStatusBar from '@/components/MarketStatusBar';
 import DisclaimerBanner from '@/components/DisclaimerBanner';
-import SignalFeed from '@/components/SignalFeed';
-import StockChart from '@/components/StockChart';
-import IndicatorPanel from '@/components/IndicatorPanel';
-import Watchlist from '@/components/Watchlist';
-import BacktestCard from '@/components/BacktestCard';
+import DashboardView from '@/components/views/DashboardView';
+import SignalsView from '@/components/views/SignalsView';
+import BacktestView from '@/components/views/BacktestView';
+import ScreenerView from '@/components/views/ScreenerView';
 
 const Index = () => {
+  const [currentPage, setCurrentPage] = useState<PageType>('dashboard');
   const [selectedSignal, setSelectedSignal] = useState<TradingSignal | null>(mockSignals[0]);
   const [selectedSymbol, setSelectedSymbol] = useState<string>('RELIANCE');
 
@@ -22,50 +22,51 @@ const Index = () => {
     } else {
       setSelectedSignal(null);
     }
+    // Switch to dashboard when selecting a stock from screener
+    if (currentPage === 'screener') {
+      setCurrentPage('dashboard');
+    }
   };
 
   const handleSelectSignal = (signal: TradingSignal) => {
     setSelectedSignal(signal);
     setSelectedSymbol(signal.stock.symbol);
+    // Switch to dashboard when selecting a signal
+    if (currentPage === 'signals') {
+      setCurrentPage('dashboard');
+    }
+  };
+
+  const renderCurrentPage = () => {
+    switch (currentPage) {
+      case 'dashboard':
+        return (
+          <DashboardView
+            selectedSignal={selectedSignal}
+            selectedSymbol={selectedSymbol}
+            onSelectSignal={handleSelectSignal}
+            onSelectStock={handleSelectStock}
+          />
+        );
+      case 'signals':
+        return <SignalsView onSelectSignal={handleSelectSignal} />;
+      case 'backtest':
+        return <BacktestView />;
+      case 'screener':
+        return <ScreenerView onSelectStock={handleSelectStock} />;
+      default:
+        return null;
+    }
   };
 
   return (
     <div className="flex h-screen flex-col bg-background">
       <DisclaimerBanner />
-      <Header />
+      <Header currentPage={currentPage} onNavigate={setCurrentPage} />
       <MarketStatusBar />
 
       <main className="flex-1 overflow-hidden p-4">
-        <div className="grid h-full grid-cols-12 gap-4">
-          {/* Left Panel - Watchlist */}
-          <div className="col-span-12 md:col-span-2 h-full overflow-hidden">
-            <Watchlist
-              onSelectStock={handleSelectStock}
-              selectedSymbol={selectedSymbol}
-            />
-          </div>
-
-          {/* Center Panel - Chart & Signals */}
-          <div className="col-span-12 md:col-span-7 flex flex-col gap-4 overflow-hidden">
-            <div className="flex-shrink-0">
-              <StockChart signal={selectedSignal || undefined} symbol={selectedSymbol} />
-            </div>
-            <div className="flex-1 min-h-0">
-              <SignalFeed
-                onSelectSignal={handleSelectSignal}
-                selectedSignal={selectedSignal}
-              />
-            </div>
-          </div>
-
-          {/* Right Panel - Indicators & Backtest */}
-          <div className="col-span-12 md:col-span-3 flex flex-col gap-4 overflow-y-auto">
-            {selectedSignal && (
-              <IndicatorPanel indicators={selectedSignal.indicators} />
-            )}
-            <BacktestCard />
-          </div>
-        </div>
+        {renderCurrentPage()}
       </main>
 
       {/* Footer Disclaimer */}
