@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { nifty50Stocks } from '@/data/mockData';
+import { useQuery } from '@tanstack/react-query';
+import { api } from '@/services/api';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Search, Star, ArrowUpRight, ArrowDownRight, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -11,11 +13,16 @@ interface WatchlistProps {
   selectedSymbol?: string;
 }
 
+import { useStocks } from '@/hooks/useStocks';
+
 const Watchlist = ({ onSelectStock, selectedSymbol }: WatchlistProps) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [favorites, setFavorites] = useState<Set<string>>(new Set(['RELIANCE', 'TCS', 'HDFCBANK']));
 
-  const filteredStocks = nifty50Stocks.filter(
+  // Fetch all stocks from API
+  const { data: stocks, isLoading, error } = useStocks();
+
+  const filteredStocks = (stocks || []).filter(
     (stock) =>
       stock.symbol.toLowerCase().includes(searchQuery.toLowerCase()) ||
       stock.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -79,7 +86,26 @@ const Watchlist = ({ onSelectStock, selectedSymbol }: WatchlistProps) => {
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        <div className="divide-y divide-border">
+        {isLoading ? (
+          <div className="p-3 space-y-3">
+            {[...Array(10)].map((_, i) => (
+              <div key={i} className="space-y-2">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-3 w-32" />
+              </div>
+            ))}
+          </div>
+        ) : error ? (
+          <div className="p-4 text-center text-sm text-muted-foreground">
+            <p>Failed to load stocks</p>
+            <p className="text-xs mt-1">Check backend connection</p>
+          </div>
+        ) : sortedStocks.length === 0 ? (
+          <div className="p-4 text-center text-sm text-muted-foreground">
+            No stocks found
+          </div>
+        ) : (
+          <div className="divide-y divide-border">
           {sortedStocks.map((stock) => (
             <div
               key={stock.symbol}
@@ -141,6 +167,7 @@ const Watchlist = ({ onSelectStock, selectedSymbol }: WatchlistProps) => {
             </div>
           ))}
         </div>
+        )}
       </div>
     </Card>
   );

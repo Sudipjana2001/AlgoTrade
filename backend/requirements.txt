@@ -1,0 +1,14 @@
+fastapi
+uvicorn[standard]
+websockets
+pydantic
+pydantic-settings
+yfinance
+pandas
+numpy
+pandas-ta
+python-dotenv
+pytz
+aiohttp
+python-multipart
+sqlalchemy

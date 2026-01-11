@@ -6,72 +6,21 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-
-interface Notification {
-  id: string;
-  type: 'BUY' | 'SELL' | 'HOLD' | 'info';
-  title: string;
-  message: string;
-  timestamp: Date;
-  read: boolean;
-}
-
-const mockNotifications: Notification[] = [
-  {
-    id: '1',
-    type: 'BUY',
-    title: 'New BUY Signal',
-    message: 'RELIANCE triggered at ₹2,876.50 with 87% confidence',
-    timestamp: new Date(Date.now() - 2 * 60 * 1000),
-    read: false,
-  },
-  {
-    id: '2',
-    type: 'SELL',
-    title: 'New SELL Signal',
-    message: 'ICICIBANK triggered at ₹1,234.80 with 72% confidence',
-    timestamp: new Date(Date.now() - 8 * 60 * 1000),
-    read: false,
-  },
-  {
-    id: '3',
-    type: 'info',
-    title: 'Market Opening',
-    message: 'Indian markets open in 15 minutes',
-    timestamp: new Date(Date.now() - 30 * 60 * 1000),
-    read: false,
-  },
-];
+import { useNotifications, Notification } from '@/contexts/NotificationContext';
+import { formatDistanceToNow } from 'date-fns';
 
 const NotificationPanel = () => {
-  const [notifications, setNotifications] = useState(mockNotifications);
+  const { notifications, unreadCount, markAsRead, markAllAsRead, removeNotification } = useNotifications();
   const [isOpen, setIsOpen] = useState(false);
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
-
-  const markAsRead = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
-  };
-
-  const markAllAsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-  };
-
-  const removeNotification = (id: string) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
-  };
-
+  // Helper to get formatted time
   const formatTime = (date: Date) => {
-    const minutes = Math.floor((Date.now() - date.getTime()) / 60000);
-    if (minutes < 1) return 'Just now';
-    if (minutes < 60) return `${minutes}m ago`;
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h ago`;
-    return `${Math.floor(hours / 24)}d ago`;
+    try {
+        return formatDistanceToNow(new Date(date), { addSuffix: true });
+    } catch (e) {
+        return 'Just now';
+    }
   };
 
   const getTypeIcon = (type: Notification['type']) => {

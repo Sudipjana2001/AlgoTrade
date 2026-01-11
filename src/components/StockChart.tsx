@@ -1,7 +1,10 @@
-import { useMemo } from 'react';
-import { generateOHLCVData } from '@/data/mockData';
+import { useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { api } from '@/services/api';
 import { TradingSignal } from '@/types/trading';
 import { Card } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   ComposedChart,
   Bar,
@@ -21,17 +24,27 @@ interface StockChartProps {
   symbol?: string;
 }
 
+import { useStockOHLCV } from '@/hooks/useStocks';
+
 const StockChart = ({ signal, symbol = 'RELIANCE' }: StockChartProps) => {
-  const data = useMemo(() => generateOHLCVData(30), []);
+  const [timeframe, setTimeframe] = useState<'1d' | '1h' | '15m' | '5m'>('1d');
+  
+  // Fetch OHLCV data from API
+  const { data: ohlcvData, isLoading } = useStockOHLCV(symbol, timeframe, timeframe === '1d' ? '3mo' : '5d');
 
   const chartData = useMemo(() => {
-    return data.map((d, index) => ({
-      ...d,
-      date: d.timestamp.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }),
-      color: d.close >= d.open ? 'hsl(142, 70%, 45%)' : 'hsl(0, 75%, 50%)',
-      ema20: data.slice(Math.max(0, index - 19), index + 1).reduce((sum, item) => sum + item.close, 0) / Math.min(index + 1, 20),
-    }));
-  }, [data]);
+    if (!ohlcvData || ohlcvData.length === 0) return [];
+    
+    return ohlcvData.map((d, index) => {
+      const timestamp = new Date(d.timestamp);
+      return {
+        ...d,
+        date: timestamp.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }),
+        color: d.close >= d.open ? 'hsl(142, 70%, 45%)' : 'hsl(0, 75%, 50%)',
+        ema20: ohlcvData.slice(Math.max(0, index - 19), index + 1).reduce((sum, item) => sum + item.close, 0) / Math.min(index + 1, 20),
+      };
+    });
+  }, [ohlcvData]);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-IN', {
@@ -41,7 +54,8 @@ const StockChart = ({ signal, symbol = 'RELIANCE' }: StockChartProps) => {
     }).format(value);
   };
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: any[]; label?: string }) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
@@ -79,8 +93,28 @@ const StockChart = ({ signal, symbol = 'RELIANCE' }: StockChartProps) => {
 
   const latestData = chartData[chartData.length - 1];
   const previousData = chartData[chartData.length - 2];
-  const priceChange = latestData.close - previousData.close;
-  const priceChangePercent = (priceChange / previousData.close) * 100;
+  const priceChange = latestData && previousData ? latestData.close - previousData.close : 0;
+  const priceChangePercent = latestData && previousData ? (priceChange / Number(previousData.close)) * 100 : 0;
+
+  if (isLoading) {
+    return (
+      <Card className="border-border bg-card p-4">
+        <Skeleton className="h-8 w-48 mb-4" />
+        <Skeleton className="h-[300px] w-full" />
+      </Card>
+    );
+  }
+
+  if (!chartData || chartData.length === 0) {
+    return (
+      <Card className="border-border bg-card p-4">
+        <div className="text-center text-muted-foreground py-12">
+          <p>No chart data available for {symbol}</p>
+          <p className="text-xs mt-1">Check backend connection</p>
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card className="border-border bg-card p-4">
@@ -91,7 +125,7 @@ const StockChart = ({ signal, symbol = 'RELIANCE' }: StockChartProps) => {
             <span className="text-sm text-muted-foreground">NSE</span>
           </div>
           <div className="mt-1 flex items-center gap-2">
-            <span className="font-mono text-2xl font-bold">{formatCurrency(latestData.close)}</span>
+            <span className="font-mono text-2xl font-bold">{latestData ? formatCurrency(Number(latestData.close)) : 'N/A'}</span>
             <div className={`flex items-center gap-1 ${priceChange >= 0 ? 'text-bullish' : 'text-bearish'}`}>
               {priceChange >= 0 ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
               <span className="font-mono text-sm font-medium">

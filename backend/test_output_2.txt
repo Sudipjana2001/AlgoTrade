@@ -1,0 +1,92 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-9.0.2, pluggy-1.6.0
+rootdir: D:\algoTrade\backend
+configfile: pytest.ini
+testpaths: tests
+plugins: anyio-4.12.0, Faker-38.2.0, langsmith-0.4.58, typeguard-4.4.1
+collected 14 items / 1 error
+
+=================================== ERRORS ====================================
+__________________ ERROR collecting tests/test_admin_api.py ___________________
+tests\test_admin_api.py:16: in <module>
+    client = TestClient(app)
+             ^^^^^^^^^^^^^^^
+C:\Users\sudip\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\testclient.py:402: in __init__
+    super().__init__(
+E   TypeError: Client.__init__() got an unexpected keyword argument 'app'
+============================== warnings summary ===============================
+config.py:8
+  D:\algoTrade\backend\config.py:8: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class Settings(BaseSettings):
+
+C:\Users\sudip\AppData\Local\Programs\Python\Python312\Lib\site-packages\pytz\tzinfo.py:27
+  C:\Users\sudip\AppData\Local\Programs\Python\Python312\Lib\site-packages\pytz\tzinfo.py:27: DeprecationWarning: datetime.datetime.utcfromtimestamp() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.fromtimestamp(timestamp, datetime.UTC).
+    _epoch = datetime.utcfromtimestamp(0)
+
+api\routes\stocks.py:38
+  D:\algoTrade\backend\api\routes\stocks.py:38: DeprecationWarning: `regex` has been deprecated, please use `pattern` instead
+    exchange: str = Query(default="NSE", regex="^(NSE|BSE)$")
+
+api\routes\stocks.py:62
+  D:\algoTrade\backend\api\routes\stocks.py:62: DeprecationWarning: `regex` has been deprecated, please use `pattern` instead
+    timeframe: str = Query(default="1d", regex="^(1m|5m|15m|1h|1d)$"),
+
+api\routes\stocks.py:63
+  D:\algoTrade\backend\api\routes\stocks.py:63: DeprecationWarning: `regex` has been deprecated, please use `pattern` instead
+    period: str = Query(default="1mo", regex="^(1d|5d|1mo|3mo|6mo|1y|2y|5y)$"),
+
+api\routes\stocks.py:64
+  D:\algoTrade\backend\api\routes\stocks.py:64: DeprecationWarning: `regex` has been deprecated, please use `pattern` instead
+    exchange: str = Query(default="NSE", regex="^(NSE|BSE)$")
+
+api\routes\stocks.py:97
+  D:\algoTrade\backend\api\routes\stocks.py:97: DeprecationWarning: `regex` has been deprecated, please use `pattern` instead
+    timeframe: str = Query(default="1d", regex="^(1m|5m|15m|1h|1d)$"),
+
+api\routes\stocks.py:98
+  D:\algoTrade\backend\api\routes\stocks.py:98: DeprecationWarning: `regex` has been deprecated, please use `pattern` instead
+    exchange: str = Query(default="NSE", regex="^(NSE|BSE)$")
+
+database.py:12
+  D:\algoTrade\backend\database.py:12: MovedIn20Warning: The ``declarative_base()`` function is now available as sqlalchemy.orm.declarative_base(). (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+    Base = declarative_base()
+
+api\routes\signals.py:26
+  D:\algoTrade\backend\api\routes\signals.py:26: DeprecationWarning: `regex` has been deprecated, please use `pattern` instead
+    signal_type: Optional[str] = Query(default=None, regex="^(BUY|SELL|HOLD)$"),
+
+api\routes\signals.py:86
+  D:\algoTrade\backend\api\routes\signals.py:86: DeprecationWarning: `regex` has been deprecated, please use `pattern` instead
+    exchange: str = Query(default="NSE", regex="^(NSE|BSE)$"),
+
+api\routes\signals.py:87
+  D:\algoTrade\backend\api\routes\signals.py:87: DeprecationWarning: `regex` has been deprecated, please use `pattern` instead
+    strategy: str = Query(default="combined", regex="^(combined|rsi_macd|bb_volume|ema_crossover|vwap_reversal)$")
+
+routes\backtest_routes.py:29
+  D:\algoTrade\backend\routes\backtest_routes.py:29: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class BacktestResponse(BaseModel):
+
+main.py:72
+  D:\algoTrade\backend\main.py:72: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+C:\Users\sudip\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\applications.py:4495
+  C:\Users\sudip\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\applications.py:4495: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    return self.router.on_event(event_type)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+ERROR tests/test_admin_api.py - TypeError: Client.__init__() got an unexpecte...
+!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+======================== 15 warnings, 1 error in 3.57s ========================

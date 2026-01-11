@@ -44,9 +44,7 @@ const DashboardView = ({
 
       {/* Right Panel - Indicators & Backtest */}
       <div className="col-span-12 md:col-span-3 flex flex-col gap-4 overflow-y-auto">
-        {selectedSignal && (
-          <IndicatorPanel indicators={selectedSignal.indicators} />
-        )}
+        <IndicatorPanel symbol={selectedSymbol} />
         <BacktestCard />
       </div>
     </div>

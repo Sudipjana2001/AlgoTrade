@@ -1,0 +1,75 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-9.0.2, pluggy-1.6.0
+rootdir: D:\algoTrade\backend
+configfile: pytest.ini
+testpaths: tests
+plugins: anyio-4.12.0, Faker-38.2.0, langsmith-0.4.58, typeguard-4.4.1
+collected 14 items / 1 error
+
+=================================== ERRORS ====================================
+__________________ ERROR collecting tests/test_admin_api.py ___________________
+C:\Users\sudip\AppData\Local\Programs\Python\Python312\Lib\site-packages\_pytest\python.py:507: in importtestmodule
+    mod = import_path(
+C:\Users\sudip\AppData\Local\Programs\Python\Python312\Lib\site-packages\_pytest\pathlib.py:587: in import_path
+    importlib.import_module(module_name)
+C:\Users\sudip\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1331: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:935: in _load_unlocked
+    ???
+C:\Users\sudip\AppData\Local\Programs\Python\Python312\Lib\site-packages\_pytest\assertion\rewrite.py:197: in exec_module
+    exec(co, module.__dict__)
+tests\test_admin_api.py:2: in <module>
+    from main import app
+main.py:8: in <module>
+    from api.routes import stocks, market, signals
+api\routes\signals.py:9: in <module>
+    from services.signal_generator import generate_signal
+E     File "D:\algoTrade\backend\services\signal_generator.py", line 32
+E       current_price: float,
+E       ^^^^^^^^^^^^^^^^^^^^
+E   SyntaxError: duplicate argument 'current_price' in function definition
+============================== warnings summary ===============================
+config.py:8
+  D:\algoTrade\backend\config.py:8: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class Settings(BaseSettings):
+
+C:\Users\sudip\AppData\Local\Programs\Python\Python312\Lib\site-packages\pytz\tzinfo.py:27
+  C:\Users\sudip\AppData\Local\Programs\Python\Python312\Lib\site-packages\pytz\tzinfo.py:27: DeprecationWarning: datetime.datetime.utcfromtimestamp() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.fromtimestamp(timestamp, datetime.UTC).
+    _epoch = datetime.utcfromtimestamp(0)
+
+api\routes\stocks.py:38
+  D:\algoTrade\backend\api\routes\stocks.py:38: DeprecationWarning: `regex` has been deprecated, please use `pattern` instead
+    exchange: str = Query(default="NSE", regex="^(NSE|BSE)$")
+
+api\routes\stocks.py:62
+  D:\algoTrade\backend\api\routes\stocks.py:62: DeprecationWarning: `regex` has been deprecated, please use `pattern` instead
+    timeframe: str = Query(default="1d", regex="^(1m|5m|15m|1h|1d)$"),
+
+api\routes\stocks.py:63
+  D:\algoTrade\backend\api\routes\stocks.py:63: DeprecationWarning: `regex` has been deprecated, please use `pattern` instead
+    period: str = Query(default="1mo", regex="^(1d|5d|1mo|3mo|6mo|1y|2y|5y)$"),
+
+api\routes\stocks.py:64
+  D:\algoTrade\backend\api\routes\stocks.py:64: DeprecationWarning: `regex` has been deprecated, please use `pattern` instead
+    exchange: str = Query(default="NSE", regex="^(NSE|BSE)$")
+
+api\routes\stocks.py:97
+  D:\algoTrade\backend\api\routes\stocks.py:97: DeprecationWarning: `regex` has been deprecated, please use `pattern` instead
+    timeframe: str = Query(default="1d", regex="^(1m|5m|15m|1h|1d)$"),
+
+api\routes\stocks.py:98
+  D:\algoTrade\backend\api\routes\stocks.py:98: DeprecationWarning: `regex` has been deprecated, please use `pattern` instead
+    exchange: str = Query(default="NSE", regex="^(NSE|BSE)$")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+ERROR tests/test_admin_api.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+======================== 8 warnings, 1 error in 2.68s =========================

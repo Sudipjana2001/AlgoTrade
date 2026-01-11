@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { mockSignals } from '@/data/mockData';
+import { useQuery } from '@tanstack/react-query';
+import { api } from '@/services/api';
 import { TradingSignal, SignalType, Timeframe } from '@/types/trading';
 import SignalCard from './SignalCard';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Filter, RefreshCw, Bell, ArrowUpRight, ArrowDownRight, Minus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -14,30 +16,38 @@ interface SignalFeedProps {
   selectedSignal?: TradingSignal | null;
 }
 
+import { useSignals } from '@/hooks/useSignals';
+
 const SignalFeed = ({ onSelectSignal, selectedSignal }: SignalFeedProps) => {
   const [activeFilter, setActiveFilter] = useState<SignalType | 'ALL'>('ALL');
   const [timeframeFilter, setTimeframeFilter] = useState<Timeframe | 'ALL'>('ALL');
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const filteredSignals = mockSignals.filter((signal) => {
-    const matchesType = activeFilter === 'ALL' || signal.signal === activeFilter;
+  // Fetch signals from API
+  const { data: apiSignals, isLoading, error, refetch } = useSignals({
+      minConfidence: 60,
+      signalType: activeFilter === 'ALL' ? undefined : activeFilter as string, // Cast to string as hook expects string
+  });
+
+  const signals = apiSignals || [];
+
+  const filteredSignals = signals.filter((signal) => {
     const matchesTimeframe = timeframeFilter === 'ALL' || signal.timeframe === timeframeFilter;
-    return matchesType && matchesTimeframe;
+    return matchesTimeframe;
   });
 
   const signalCounts = {
-    BUY: mockSignals.filter((s) => s.signal === 'BUY').length,
-    SELL: mockSignals.filter((s) => s.signal === 'SELL').length,
-    HOLD: mockSignals.filter((s) => s.signal === 'HOLD').length,
+    BUY: signals.filter((s) => s.signal === 'BUY').length,
+    SELL: signals.filter((s) => s.signal === 'SELL').length,
+    HOLD: signals.filter((s) => s.signal === 'HOLD').length,
   };
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await refetch();
     setIsRefreshing(false);
     toast.success('Signals refreshed', {
-      description: `${mockSignals.length} active signals loaded`,
+      description: `${signals.length} active signals loaded`,
     });
   };
 
@@ -129,7 +139,29 @@ const SignalFeed = ({ onSelectSignal, selectedSignal }: SignalFeedProps) => {
       </div>
 
       <div className="flex-1 overflow-y-auto p-3 space-y-3">
-        {filteredSignals.length === 0 ? (
+        {isLoading ? (
+          <div className="space-y-3">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="space-y-2">
+                <Skeleton className="h-24 w-full" />
+              </div>
+            ))}
+          </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center py-8 text-center">
+            <Bell className="h-8 w-8 text-muted-foreground mb-2" />
+            <p className="text-sm text-muted-foreground">Failed to load signals</p>
+            <p className="text-xs text-muted-foreground mt-1">Check backend connection</p>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="mt-2 text-xs"
+              onClick={() => refetch()}
+            >
+              Retry
+            </Button>
+          </div>
+        ) : filteredSignals.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8 text-center">
             <Bell className="h-8 w-8 text-muted-foreground mb-2" />
             <p className="text-sm text-muted-foreground">No signals match your filters</p>
